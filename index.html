@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shift Handover &amp; Reporting — Digital Logbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">SH</span>
+      <div>
+        <div class="brand-title">Shift Handover</div>
+        <div class="brand-sub">Module 5 · Reporting</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <span class="nav-dot"></span> Dashboard
+      </button>
+      <button class="nav-item" data-view="new-handover">
+        <span class="nav-dot"></span> New Handover
+      </button>
+      <button class="nav-item" data-view="history">
+        <span class="nav-dot"></span> Handover History
+      </button>
+    </nav>
+
+    <div class="sidebar-clock">
+      <div class="clock-label">Local Time</div>
+      <div class="clock-value" id="liveClock">--:--:--</div>
+      <div class="clock-date" id="liveDate">-- --- ----</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ===================== DASHBOARD VIEW ===================== -->
+    <section class="view active" id="view-dashboard">
+      <header class="view-header">
+        <div>
+          <h1>Shift Handover Dashboard</h1>
+          <p class="view-subtitle">Latest handover status across all shifts</p>
+        </div>
+        <button class="btn btn-primary" id="btnGoNew">+ New Handover</button>
+      </header>
+
+      <div class="stat-row" id="statRow">
+        <!-- stat cards injected by JS -->
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Equipment Status — Refinery Readings</h2>
+          <span class="hint" style="margin:0;">Latest hourly reading per refinery</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="equipmentTable">
+            <thead>
+              <tr>
+                <th>Refinery</th>
+                <th>Crude Type</th>
+                <th>Last Reading</th>
+                <th>Temp (°C)</th>
+                <th>Pressure (bar)</th>
+                <th>CDU Load (%)</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="equipmentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Recent Handovers</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="handoverTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Outgoing → Incoming</th>
+                <th>Pending Tasks</th>
+                <th>Open Incidents</th>
+                <th>Status</th>
+                <th>Export</th>
+              </tr>
+            </thead>
+            <tbody id="handoverTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== NEW HANDOVER VIEW ===================== -->
+    <section class="view" id="view-new-handover">
+      <header class="view-header">
+        <div>
+          <h1>Create Shift Handover</h1>
+          <p class="view-subtitle">Log the outgoing shift and hand control to the next team</p>
+        </div>
+      </header>
+
+      <div class="handover-strip">
+        <div class="strip-side">
+          <div class="strip-label">Outgoing</div>
+          <input type="text" id="outgoingShift" placeholder="e.g. Day Shift (06:00–14:00)" />
+          <input type="text" id="outgoingSupervisor" placeholder="Outgoing supervisor name" />
+        </div>
+        <div class="strip-baton" title="Handover">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </div>
+        <div class="strip-side">
+          <div class="strip-label">Incoming</div>
+          <input type="text" id="incomingShift" placeholder="e.g. Evening Shift (14:00–22:00)" />
+          <input type="text" id="incomingSupervisor" placeholder="Incoming supervisor name" />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="panel">
+          <div class="panel-head"><h2>Shift Details</h2></div>
+          <div class="panel-body">
+            <label class="field-label">Shift Date</label>
+            <input type="date" id="shiftDate" />
+
+            <label class="field-label">Manual Summary Note <span class="muted">(optional, appended to auto-summary)</span></label>
+            <textarea id="manualSummaryNote" rows="3" placeholder="Any extra context for the automated summary..."></textarea>
+
+            <label class="field-label">Supervisor Remarks</label>
+            <textarea id="supervisorRemarks" rows="3" placeholder="Notes for the incoming supervisor..."></textarea>
+
+            <button class="btn btn-primary btn-block" id="btnCreateHandover">Generate Handover Summary</button>
+            <div class="hint">Add pending tasks and incidents below — the summary auto-updates from them.</div>
+          </div>
+        </div>
+
+        <div class="panel" id="pendingContextPanel" style="display:none;">
+          <div class="panel-head">
+            <h2>Generated Summary</h2>
+            <span class="badge badge-status" id="createdStatusBadge">Draft</span>
+          </div>
+          <div class="panel-body">
+            <div class="summary-box" id="generatedSummaryBox">—</div>
+
+            <div class="sub-panel">
+              <div class="sub-panel-head">
+                <h3>Pending Tasks</h3>
+                <button class="btn btn-small" id="btnAddTask">+ Add Task</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table small">
+                  <thead>
+                    <tr><th>Description</th><th>Assigned</th><th>Priority</th><th>Status</th><th>Due</th><th></th></tr>
+                  </thead>
+                  <tbody id="taskTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="sub-panel">
+              <div class="sub-panel-head">
+                <h3>Outstanding Incidents</h3>
+                <button class="btn btn-small" id="btnAddIncident">+ Add Incident</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table small">
+                  <thead>
+                    <tr><th>Title</th><th>Severity</th><th>Status</th><th></th></tr>
+                  </thead>
+                  <tbody id="incidentTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="export-row">
+              <button class="btn btn-outline" id="btnExportPdfNew">⬇ Export PDF</button>
+              <button class="btn btn-outline" id="btnExportExcelNew">⬇ Export Excel</button>
+              <button class="btn btn-primary" id="btnFinalizeHandover">Mark as Completed</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTORY VIEW ===================== -->
+    <section class="view" id="view-history">
+      <header class="view-header">
+        <div>
+          <h1>Handover History</h1>
+          <p class="view-subtitle">Search and export past shift handover reports</p>
+        </div>
+        <input type="text" id="historySearch" class="search-input" placeholder="Search by supervisor, shift or ID..." />
+      </header>
+
+      <div class="panel">
+        <div class="table-wrap">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Outgoing → Incoming</th>
+                <th>Supervisors</th>
+                <th>Status</th>
+                <th>Export</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ALL PENDING TASKS VIEW ===================== -->
+    <section class="view" id="view-all-tasks">
+      <header class="view-header">
+        <div>
+          <h1>Pending Tasks — All Shifts</h1>
+          <p class="view-subtitle">Every pending task across all handovers, newest first</p>
+        </div>
+        <button class="btn btn-outline" data-back="dashboard">← Back to Dashboard</button>
+      </header>
+
+      <div class="panel">
+        <div class="table-wrap">
+          <table class="data-table" id="allTasksTable">
+            <thead>
+              <tr>
+                <th>Handover</th>
+                <th>Shift Date</th>
+                <th>Description</th>
+                <th>Assigned To</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Due Date</th>
+              </tr>
+            </thead>
+            <tbody id="allTasksTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ALL OPEN INCIDENTS VIEW ===================== -->
+    <section class="view" id="view-all-incidents">
+      <header class="view-header">
+        <div>
+          <h1>Open Incidents — All Shifts</h1>
+          <p class="view-subtitle">Every unresolved incident across all handovers, newest first</p>
+        </div>
+        <button class="btn btn-outline" data-back="dashboard">← Back to Dashboard</button>
+      </header>
+
+      <div class="panel">
+        <div class="table-wrap">
+          <table class="data-table" id="allIncidentsTable">
+            <thead>
+              <tr>
+                <th>Handover</th>
+                <th>Shift Date</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="allIncidentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== Modal: Add Task ===== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h3>Add Pending Task</h3>
+    <label class="field-label">Description</label>
+    <input type="text" id="taskDescription" placeholder="What needs to be done?" />
+    <label class="field-label">Assigned To</label>
+    <input type="text" id="taskAssignedTo" placeholder="Team or person" />
+    <div class="modal-row">
+      <div>
+        <label class="field-label">Priority</label>
+        <select id="taskPriority">
+          <option>Low</option>
+          <option selected>Medium</option>
+          <option>High</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Due Date</label>
+        <input type="date" id="taskDueDate" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="btnCancelTask">Cancel</button>
+      <button class="btn btn-primary" id="btnSaveTask">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Add Incident ===== -->
+<div class="modal-overlay" id="incidentModal">
+  <div class="modal">
+    <h3>Add Outstanding Incident</h3>
+    <label class="field-label">Title</label>
+    <input type="text" id="incidentTitle" placeholder="Short incident title" />
+    <label class="field-label">Severity</label>
+    <select id="incidentSeverity">
+      <option>Low</option>
+      <option selected>Medium</option>
+      <option>High</option>
+      <option>Critical</option>
+    </select>
+    <label class="field-label">Description</label>
+    <textarea id="incidentDescription" rows="3" placeholder="Details of the incident..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="btnCancelIncident">Cancel</button>
+      <button class="btn btn-primary" id="btnSaveIncident">Save Incident</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

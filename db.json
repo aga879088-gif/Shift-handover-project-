@@ -1,0 +1,110 @@
+{
+  "handovers": [
+    {
+      "id": "ho-1001",
+      "shiftDate": "2026-07-02",
+      "outgoingShift": "Day Shift (06:00 - 14:00)",
+      "incomingShift": "Evening Shift (14:00 - 22:00)",
+      "outgoingSupervisor": "R. Malhotra",
+      "incomingSupervisor": "S. Verma",
+      "summary": "Line 2 ran at 92% OEE. Minor vibration noted on Conveyor B, logged for maintenance. All safety checks completed.",
+      "supervisorRemarks": "Please monitor Conveyor B closely during the evening shift. Maintenance ticket #MT-2231 raised.",
+      "status": "Completed",
+      "createdAt": "2026-07-02T13:45:00.000Z"
+    },
+    {
+      "id": "ho-4d80ee4c",
+      "shiftDate": "2026-07-03",
+      "outgoingShift": "Day Shift (6:00 - 14:00)",
+      "incomingShift": "Evening Shift (14:00 - 22:00)",
+      "outgoingSupervisor": "Akshita Gautam",
+      "incomingSupervisor": "Avi Gautam",
+      "summary": "Shift closed with 1 logged task(s), 1 still pending. 1 incident(s) recorded, 1 remain open. Dhyan se Kaam krna",
+      "supervisorRemarks": "All the best",
+      "status": "Draft",
+      "createdAt": "2026-07-03T04:49:00.625Z"
+    },
+    {
+      "id": "ho-c679bae0",
+      "shiftDate": "2026-07-03",
+      "outgoingShift": "Day Shift (6:00 - 14:00)",
+      "incomingShift": "Evening Shift (14:00 - 22:00)",
+      "outgoingSupervisor": "Akshita Gautam",
+      "incomingSupervisor": "Avi Gautam",
+      "summary": "Shift closed with 0 logged task(s), 0 still pending. 0 incident(s) recorded, 0 remain open. Best kaam kia h mne",
+      "supervisorRemarks": "Good word",
+      "status": "Completed",
+      "createdAt": "2026-07-03T05:20:06.032Z"
+    },
+    {
+      "id": "ho-4adc3644",
+      "shiftDate": "2026-07-04",
+      "outgoingShift": "Day Shift (6:00 - 14:00)",
+      "incomingShift": "Evening Shift (14:00 - 22:00)",
+      "outgoingSupervisor": "Akshita Gautam",
+      "incomingSupervisor": "Khushdil Kaushik",
+      "summary": "Shift closed with 1 logged task(s), 1 still pending. 0 incident(s) recorded, 0 remain open. Jyada khush mt hoo supervisor nkli ke ho",
+      "supervisorRemarks": "Aaage wala daat aadha kha gya",
+      "status": "Draft",
+      "createdAt": "2026-07-04T16:18:43.646Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "tk-2001",
+      "handoverId": "ho-1001",
+      "description": "Inspect Conveyor B bearing for abnormal vibration",
+      "assignedTo": "Maintenance Team",
+      "priority": "High",
+      "status": "Pending",
+      "dueDate": "2026-07-03"
+    },
+    {
+      "id": "tk-2002",
+      "handoverId": "ho-1001",
+      "description": "Refill lubricant stock at Station 4",
+      "assignedTo": "Operator - Station 4",
+      "priority": "Medium",
+      "status": "Pending",
+      "dueDate": "2026-07-03"
+    },
+    {
+      "id": "tk-11944233",
+      "handoverId": "ho-4d80ee4c",
+      "description": "Motor ka button bndh krdo",
+      "assignedTo": "Avi Gautam",
+      "priority": "High",
+      "status": "Pending",
+      "dueDate": "2005-09-22"
+    },
+    {
+      "id": "tk-d43dd079",
+      "handoverId": "ho-4adc3644",
+      "description": "dentist pe jao",
+      "assignedTo": "Khushdil kaushik",
+      "priority": "Medium",
+      "status": "Pending",
+      "dueDate": "2026-07-30"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "inc-3001",
+      "handoverId": "ho-1001",
+      "title": "Minor coolant leak - Machine 7",
+      "severity": "Medium",
+      "status": "In Progress",
+      "reportedAt": "2026-07-02T10:15:00.000Z",
+      "description": "Small coolant leak detected near Machine 7 hydraulic line. Contained with drip tray, awaiting seal replacement."
+    },
+    {
+      "id": "inc-19b45f41",
+      "handoverId": "ho-4d80ee4c",
+      "title": "Pani ki Tani Overflow ho gyi thi",
+      "severity": "Medium",
+      "status": "Open",
+      "reportedAt": "2026-07-03T05:06:19.613Z",
+      "description": "tum dhyan rkhna aur pending task check krlena"
+    }
+  ]
+}
